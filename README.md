@@ -18,14 +18,16 @@ http://localhost:3000/index
 
 Note that, this is the env tested:
 node.js v10.1.0
+
 npm 5.6.0
+
 web3@1.0.0-beta.34
 
 Also note, I have provide ethereum mainnet.infura token for developer. so that you can just deploy and run. it is:
 ```fchiwsz5q5eaapI6WSmo```
 
 
-## Forexample
+## Example
 for block at height 5648510
 
 Block on main chain:
