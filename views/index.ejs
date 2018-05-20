@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+    <title>EVM chain visualization</title>
+  </head>
+  <body
+
+		<div class="col-2">
+			<div class="input-group mb-3">
+			  <div class="input-group-prepend">
+			    <button class="btn btn-outline-secondary" type="button" onclick="postBlock(document.getElementsByName('textbox1')[0])">Block</button>
+			  </div>
+			  <input name="textbox1" id="textbox1" type="text" class="form-control" placeholder="block height" aria-label="" aria-describedby="basic-addon1">
+			</div>
+		</div>
+
+		<svg width="1000" height="1000"></svg>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  </body>
+</html>
+
+<script>
+	function postBlock(blockid){
+		window.location='http://localhost:3000/index/'+blockid.value;
+	}
+
+</script>
+
+
+
+
+
+<style>
+.links line {
+	stroke: #999;
+	stroke-opacity: 0.6;
+}
+
+.nodes circle {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+
+<script>
+let jsonresult=<%- jr %>;
+
+var svg = d3.select("svg"),
+		width = +svg.attr("width"),
+		height = +svg.attr("height");
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+		.force("link", d3.forceLink().id(function(d) { return d.id; }))
+		.force("charge", d3.forceManyBody())
+		.force("center", d3.forceCenter(width / 2, height / 2));
+
+let draw=function(graph) {
+//	if (error) throw error;
+	var link = svg.append("g")
+			.attr("class", "links")
+		.selectAll("line")
+		.data(graph.links)
+		.enter().append("line")
+			.attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+	var node = svg.append("g")
+			.attr("class", "nodes")
+		.selectAll("circle")
+		.data(graph.nodes)
+		.enter().append("circle")
+			.attr("r", 5)
+			.attr("fill", function(d) { return color(d.group); })
+			.call(d3.drag()
+					.on("start", dragstarted)
+					.on("drag", dragged)
+					.on("end", dragended));
+
+	node.append("title")
+			.text(function(d) { return d.id; });
+
+	simulation
+			.nodes(graph.nodes)
+			.on("tick", ticked);
+
+	simulation.force("link")
+			.links(graph.links);
+
+	function ticked() {
+		link
+				.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+		node
+				.attr("cx", function(d) { return d.x; })
+				.attr("cy", function(d) { return d.y; });
+	}
+};
+
+function dragstarted(d) {
+	if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+	d.fx = d.x;
+	d.fy = d.y;
+}
+
+function dragged(d) {
+	d.fx = d3.event.x;
+	d.fy = d3.event.y;
+}
+
+function dragended(d) {
+	if (!d3.event.active) simulation.alphaTarget(0);
+	d.fx = null;
+	d.fy = null;
+}
+
+
+draw(jsonresult);
+</script>
