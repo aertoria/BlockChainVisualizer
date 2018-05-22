@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+    <title>EVM chain visualization</title>
+  </head>
+  <body
+
+		<div class="col-2">
+			<div class="input-group mb-3">
+			  <div class="input-group-prepend">
+			    <button class="btn btn-outline-secondary" type="button" onclick="postBlock(document.getElementsByName('textbox1')[0])">Block</button>
+			  </div>
+			  <input name="textbox1" id="textbox1" type="text" class="form-control" placeholder="block height" aria-label="" aria-describedby="basic-addon1">
+			</div>
+		</div>
+
+
+				<svg></svg>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  </body>
+</html>
+
+<script>
+	function postBlock(blockid){
+		window.location='http://localhost:3000/directed/'+blockid.value;
+	}
+
+</script>
+
+
+<style>
+    path.link {
+    	fill: none;
+    	stroke: #666;
+    	stroke-width: 1.5px;
+    }
+
+    circle {
+    	fill: #ccc;
+    	stroke: #fff;
+    	stroke-width: 1.5px;
+    }
+
+    text {
+    	fill: #000;
+    	font: 10px sans-serif;
+    	pointer-events: none;
+    }
+</style>
+<script src="http://d3js.org/d3.v3.js"></script>
+
+<script>
+
+let links=<%- jr %>;
+
+// get the data
+
+var nodes = {};
+
+
+// Compute the distinct nodes from the links.
+links.forEach(function(link) {
+		link.source = nodes[link.source] ||
+				(nodes[link.source] = {name: link.source});
+		link.target = nodes[link.target] ||
+				(nodes[link.target] = {name: link.target});
+		link.value = +link.value;
+});
+
+var width = 2000,
+		height = 1500;
+
+var force = d3.layout.force()
+		.nodes(d3.values(nodes))
+		.links(links)
+		.size([width, height])
+		.linkDistance(60)
+		.charge(-300)
+		.on("tick", tick)
+		.start();
+
+var svg = d3.select("body").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+// build the arrow.
+svg.append("svg:defs").selectAll("marker")
+		.data(["end"])      // Different link/path types can be defined here
+	.enter().append("svg:marker")    // This section adds in the arrows
+		.attr("id", String)
+		.attr("viewBox", "0 -5 10 10")
+		.attr("refX", 15)
+		.attr("refY", -1.5)
+		.attr("markerWidth", 6)
+		.attr("markerHeight", 6)
+		.attr("orient", "auto")
+	.append("svg:path")
+		.attr("d", "M0,-5L10,0L0,5");
+
+// add the links and the arrows
+var path = svg.append("svg:g").selectAll("path")
+		.data(force.links())
+	.enter().append("svg:path")
+//    .attr("class", function(d) { return "link " + d.type; })
+		.attr("class", "link")
+		.attr("marker-end", "url(#end)");
+
+// define the nodes
+var node = svg.selectAll(".node")
+		.data(force.nodes())
+	.enter().append("g")
+		.attr("class", "node")
+		.call(force.drag);
+
+// add the nodes
+node.append("circle")
+		.attr("r", 5);
+
+// add the text
+node.append("text")
+		.attr("x", 12)
+		.attr("dy", ".35em")
+		.text(function(d) { return d.name.substring(0,5); });
+
+// add the curvy lines
+function tick() {
+		path.attr("d", function(d) {
+				var dx = d.target.x - d.source.x,
+						dy = d.target.y - d.source.y,
+						dr = Math.sqrt(dx * dx + dy * dy);
+				return "M" +
+						d.source.x + "," +
+						d.source.y + "A" +
+						dr + "," + dr + " 0 0,1 " +
+						d.target.x + "," +
+						d.target.y;
+		});
+
+		node
+				.attr("transform", function(d) {
+		    return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+
+</script>

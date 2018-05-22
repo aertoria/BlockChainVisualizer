@@ -1,4 +1,5 @@
 module.exports.getJSONByBlock= getJSONByBlock;
+module.exports.getJSONByBlockDirected= getJSONByBlockDirected;
 
 let Web3 = require('web3');
 //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -7,9 +8,31 @@ let web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/f
 
 //Usage
 // (async function(){
-//   let s= await getJSONByBlock(3996006);
+//   let s= await getJSONByBlockDirected(3996006);
 //   console.log(s);
 // })()
+
+async function getJSONByBlockDirected(blockid){
+    try {
+      	let currentblock= await web3.eth.getBlock(blockid);
+        var transactionlist= currentblock["transactions"];
+        let promises= transactionlist.map(item => web3.eth.getTransaction(item));
+
+        let currentTransactions = await Promise.all(promises);
+
+        let formatedList=[];
+        currentTransactions.forEach(async(item) =>{
+            var from=item["from"];
+            var to=item["to"];
+            var formated={"source": from, "target": to};
+            formatedList.push(formated);
+        });
+        // console.log(JSON.stringify(formatedList));
+        return formatedList;
+    } catch (error) {
+        console.log('Caught ERROR getJSONByBlockDirected:', error.message);
+    }
+}
 
 
 async function getJSONByBlock(blockid){

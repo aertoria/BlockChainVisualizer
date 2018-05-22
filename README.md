@@ -38,4 +38,13 @@ Data pulled from chain
 ]}
 
 Visualized as:
+Version 2(updated May 21.2018)
+![Alt text](img/vis2.png?raw=true "img")
+
+Version 1
 ![Alt text](img/EVM_chain_visualization.png?raw=true "img")
+
+
+
+
+
