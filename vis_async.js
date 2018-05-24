@@ -1,5 +1,7 @@
 module.exports.getJSONByBlock= getJSONByBlock;
 module.exports.getJSONByBlockDirected= getJSONByBlockDirected;
+module.exports.getJSONByBlockDirectedFromTo= getJSONByBlockDirectedFromTo;
+
 
 let Web3 = require('web3');
 //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -8,9 +10,17 @@ let web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/f
 
 //Usage
 // (async function(){
-//   let s= await getJSONByBlockDirected(3996006);
-//   console.log(s);
+//   let a= await getJSONByBlockDirectedFromTo(3996006,3996008);
+//   console.log(a);
 // })()
+
+async function getJSONByBlockDirectedFromTo(blockID_start, blockID_end){
+  let result =[];
+  for(var blockID=blockID_start;blockID<=blockID_end;blockID++){
+    result = result.concat(await getJSONByBlockDirected(blockID));
+  }
+  return result;
+}
 
 async function getJSONByBlockDirected(blockid){
     try {

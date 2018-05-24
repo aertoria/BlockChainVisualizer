@@ -61,6 +61,14 @@ app.get('/directed/:blockid', function (req, res) {
   })();
 });
 
+app.get('/directedM/:blockidStart/:blockidEnd', function (req, res) {
+  (async function(){
+    let s= await vis.getJSONByBlockDirectedFromTo(req.params.blockidStart,req.params.blockidEnd);
+    console.log(JSON.stringify(s));
+    res.render('indexDirected',{jr : JSON.stringify(s)});
+  })();
+});
+
 app.get('/index/:blockid', function (req, res) {
   (async function(){
     let s= await vis.getJSONByBlock(req.params.blockid);

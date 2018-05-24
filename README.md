@@ -39,9 +39,17 @@ Data pulled from chain
   "links":[{"source":"0xebcA018C743E2F878D4D8864D81eAFA2967f95ee","target":"0xA783b02ce5853AD798b6FD0417C729cc462328dF"},{"source":"0xDf78cF07ef59411F3E747C54Ecd0FE5AA66F54FE","target":"0x8d12A197cB00D4747a1fe03395095ce2A5CC6819"},...
 ]}
 
+
+##API
+Visualize one block
+http:localhost:3000/directed/5601207
+
+Visualize all the blocks between a and b
+http://localhost:3000/directedM/5601207/5601217
+
 Visualized as:
 Version 2(updated May 21.2018)
-![Alt text](img/vis2.png?raw=true "img")
+![Alt text](img/vis3.png?raw=true "img")
 
 Version 1
 ![Alt text](img/EVM_chain_visualization.png?raw=true "img")
